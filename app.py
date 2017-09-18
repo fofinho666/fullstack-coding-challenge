@@ -1,7 +1,7 @@
 from flask import *
 from pymongo import MongoClient
 from unbabel.api import UnbabelApi
-from make_celery import *
+from apscheduler.scheduler import Scheduler
 from hackerNewsAPI import HackerNewsAPI
 from dbHelper import DbHelper
 
@@ -19,23 +19,14 @@ collection = db['collection']
 dbHelper=DbHelper(10,collection)
 dbHelper.initCollection()
 
-# Initialize celery
-app.config.update(
-    CELERY_BROKER_URL='redis://localhost:6379',
-    CELERY_RESULT_BACKEND='redis://localhost:6379'
-)
-celery = make_celery(app)
+sched = Scheduler()
+sched.start()
 
-#add periodic task to celery
-@celery.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    #calls updater() every 30 seconds.
-    sender.add_periodic_task(30.0, updater.s())
+# Schedule job_function to be called every x seconds
+@sched.interval_schedule(seconds=30)
+def job_function():
+    dbHelper.updateCollection()
 
-
-@celery.task(name='app.updater')
-def updater():
-    return dbHelper.updateCollection()
 
 #flask stuff!!
 @app.route('/')
