@@ -1,0 +1,10 @@
+body{
+  background-color: rgba(51,71,146,1);
+}
+.container{
+  background-color: #fff;
+}
+
+.langs{
+  float:right;
+}
