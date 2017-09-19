@@ -1,5 +1,4 @@
-make_celery.pyc
-hackerNewsAPI.pyc
-dbHelper.pyc
-celerybeat-schedule
 app.pyc
+manager_db.pyc
+unbabel_api.pyc
+hackernews_api.pyc
