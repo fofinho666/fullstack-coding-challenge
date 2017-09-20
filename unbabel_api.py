@@ -13,23 +13,23 @@ class UnbabelAPI(object):
             'Content-Type': 'application/json'
         }
 
-    def request_translation(self, text, language):
+    def request_translation(self, text, language): 
         data = {
             'text': text,
             'text_format': 'html',
             'target_language': language
         }
-        uid = post(self.base_url, headers=self.headers, data=jsonify(data))
-
+        uid = post(self.base_url, headers=self.headers, data=data)   
+        
         if uid and uid.status_code == 201:
             return uid.json()
         return None
 
     def get_translation(self, uid):
         url = '{}{}/'.format(self.base_url, uid)
-        trans = get(url, headers=self.headers)
+        translation = get(url, headers=self.headers)
 
-        if trans and trans.status_code == 200:
-            return trans.json()
+        if translation and translation.status_code == 200:
+            return translation.json()
         return None
     
