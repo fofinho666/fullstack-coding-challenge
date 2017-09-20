@@ -1,5 +1,4 @@
 from requests import get, post
-from flask import jsonify
 
 class UnbabelAPI(object):
     """

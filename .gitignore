@@ -3,3 +3,4 @@ manager_db.pyc
 unbabel_api.pyc
 hackernews_api.pyc
 test_hackernews_api.pyc
+test_unbabel_api.pyc
