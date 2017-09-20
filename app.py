@@ -25,7 +25,6 @@ unbabel = UnbabelAPI(UNBABEL_USER,UNBABEL_APIKEY)
 manager = DatabaseManager(collection, hackernews, unbabel, LANGUAGES_LIST)
 
 sched = Scheduler()
-sched.start()
 # Schedule job_function to be called every x seconds
 @sched.interval_schedule(seconds=30)
 def update_top_stories():
@@ -62,4 +61,5 @@ def item(id):
 app.debug = True
 
 if __name__ == '__main__':
+    sched.start()
 	app.run()

@@ -26,7 +26,8 @@ app.controller('AppCtrl', function($scope,$http,$interval) {
   //get content for the first time
   //update content every 10 minutes (600000 milliseconds)
   getContent($scope,$http);  
-  $interval(function(){getContent($scope,$http)}, 600000 );
+  //$interval(function(){getContent($scope,$http)}, 600000 );
+  $interval(function(){getContent($scope,$http)}, 20000 );
   
   //change content view and disable language button
   $scope.changeTopLang = function(lang){

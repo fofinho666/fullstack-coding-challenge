@@ -1,5 +1,3 @@
-<table class="table">
-  <tbody ng-repeat="story in stories">
-    <tr><td><a ng-href="{{story.url}}">{{story.title}}</a></td></tr>
-  </tbody>
-</table>
+<ul class="list-group" ng-repeat="story in stories">
+  <li class="list-group-item"><a ng-href="{{story.url}}">{{($index+1) + ' - ' + story.title}}</a></li>
+</ul>
