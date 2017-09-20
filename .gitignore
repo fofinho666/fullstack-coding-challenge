@@ -4,3 +4,5 @@ unbabel_api.pyc
 hackernews_api.pyc
 test_hackernews_api.pyc
 test_unbabel_api.pyc
+test_manager_db.pyc
+tests/__init__.pyc

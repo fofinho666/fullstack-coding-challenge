@@ -2,18 +2,26 @@ def add_translation_data_to_title(item, unbabel_api, languages_list):
     """
     This function add translation data to the item object
     """
-    item_result = item
-    try:
+    if 'title' in item:
         text = item['title']
+        item_result = item
         # Get translations uids for each language and added to item
         for language in languages_list:
-            translation_data = get_translation_data( unbabel_api, text, language)
+            try:
+                translation_data = get_translation_data( unbabel_api, text, language)
+            except:
+                return item
+
             item_result.update(translation_data)
-    except:
+            
+        return item_result
+    else:
         return item
-    return item_result
 
 def get_translation_data(unbabel_api, text, language):
+    """
+    This function starts a new translation and return translation data
+    """
     key_uid = 'translation_{}_uid'.format(language)
     key_status = 'translation_{}_status'.format(language)
     key_ = 'translation_{}'.format(language)
@@ -29,11 +37,11 @@ def get_translation_data(unbabel_api, text, language):
             translation_data[key_uid] = res['uid']
             translation_data[key_status] = 'translating'
             translation_data[key_] = None
-        
+
         return translation_data
     except:
         return translation_data
-    
+
 class DatabaseManager(object):
     """
     Class to manage database
@@ -85,11 +93,11 @@ class DatabaseManager(object):
                 {'tops' : {'$exists' : 'true'}},
                 {'$set' : {'tops' : new_top_stories}}
             )
-            self.top_stories=new_top_stories   
+            self.top_stories = new_top_stories
         except:
             pass
-        
-    def update_a_random_translation(self,language):
+
+    def update_a_random_translation(self, language):
         key_uid = 'translation_{}_uid'.format(language)
         key_status = 'translation_{}_status'.format(language)
         key_ = 'translation_{}'.format(language)
@@ -99,8 +107,8 @@ class DatabaseManager(object):
             if storie:
                 uid = storie[key_uid]
                 translation = self.unbabel.get_translation(uid)
-                
-                if translation['status'] == 'completed':                    
+            
+                if translation['status'] == 'completed':
                     storie[key_] = translation['translatedText']
                     storie[key_status] = 'completed'
                     self.database.update_one(
@@ -108,6 +116,7 @@ class DatabaseManager(object):
                         {'$set' : storie}
                     )
         except:
+            pass
             """
             #APAGAR!!!
             storie = self.database.find_one({key_status : 'error'})
@@ -122,5 +131,3 @@ class DatabaseManager(object):
                 {'$set' : storie}
             )
             """
-            pass
-        
