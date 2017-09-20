@@ -1,4 +1,7 @@
-def add_title_translation_uids(item, unbabel_api, languages_list):
+def add_translation_data_to_title(item, unbabel_api, languages_list):
+    """
+    This function add translation data to the item object
+    """
     try:
         text = item['title']
     except:
@@ -8,8 +11,7 @@ def add_title_translation_uids(item, unbabel_api, languages_list):
     # Get translations uids for each language and added to item
     for language in languages_list:
         translation_uid = get_translation_uid(text, unbabel_api, language)
-        if translation_uid:
-            item_result.update(translation_uid)
+        item_result.update(translation_uid)
 
     return item_result
 
@@ -52,8 +54,8 @@ class DatabaseManager(object):
             #Get sotries into database
             for id_ in self.top_stories:
                 storie = self.harckernews.get_item(id_)
-                #add translation uis to storie
-                storie = add_title_translation_uids(storie, self.unbabel, self.languages_list)
+                #add translation data to storie
+                storie = add_translation_data_to_title(storie, self.unbabel, self.languages_list)
                 self.database.insert(storie)
         except:
             pass
@@ -73,7 +75,7 @@ class DatabaseManager(object):
             for id_ in add_top_stories:
                 storie = self.harckernews.get_item(id_)
                 #add translation uis to storie
-                storie = add_title_translation_uids(storie, self.unbabel, self.languages_list)
+                storie = add_translation_data_to_title(storie, self.unbabel, self.languages_list)
                 self.database.insert(storie)
 
             #update top in db (order may has changed)

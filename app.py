@@ -1,6 +1,6 @@
 from flask import *
 from pymongo import MongoClient
-from apscheduler.scheduler import Scheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from hackernews_api import HackerNewsAPI
 from unbabel_api import UnbabelAPI
 from manager_db import DatabaseManager
@@ -9,11 +9,9 @@ TOP_STORIES = 10
 UNBABEL_USER = "backendchallenge"
 UNBABEL_APIKEY = "711b8090e84dcb4981e6381b59757ac5c75ebb26"
 LANGUAGES_LIST = ['es', 'pt']
+#UPDATE_RATE = 10 #keeping this site updated with hackernews every X minutes
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
-
-# Initialize flask app
-app = Flask(__name__,static_url_path='')
 
 # Initialize mongodb
 mongo = MongoClient(MONGO_HOST, MONGO_PORT)
@@ -24,42 +22,46 @@ hackernews = HackerNewsAPI(TOP_STORIES)
 unbabel = UnbabelAPI(UNBABEL_USER,UNBABEL_APIKEY)
 manager = DatabaseManager(collection, hackernews, unbabel, LANGUAGES_LIST)
 
-sched = Scheduler()
-# Schedule job_function to be called every x seconds
-@sched.interval_schedule(seconds=30)
+#APScheduler stuff!!
 def update_top_stories():
     manager.update_top_stories()
-    
-@sched.interval_schedule(seconds=1)
+
+
 def update_a_random_pt_translation():
     manager.update_a_random_translation('pt')
-    
-@sched.interval_schedule(seconds=1)
+
+
 def update_a_random_es_translation():
     manager.update_a_random_translation('es')
 
-#flask stuff!!
+scheduler = BackgroundScheduler()
+#job = scheduler.add_job(update_top_stories, 'interval', UPDATE_RATE)
+job = scheduler.add_job(update_top_stories, 'interval', seconds=30)
+job = scheduler.add_job(update_a_random_pt_translation, 'interval', seconds=1)
+job = scheduler.add_job(update_a_random_es_translation, 'interval', seconds=1)
+
+#Flask stuff!!
+app = Flask(__name__, static_url_path='')
+
 @app.route('/')
 def index():  
     return app.send_static_file('index.html')
 
 
-@app.route('/topstories.json',methods=['GET'])
+@app.route('/topstories.json', methods=['GET'])
 def topStories():
-    cursor = collection.find_one({ 'tops' : { '$exists' : 'true' } })
+    cursor = collection.find_one({'tops' : {'$exists' : 'true'}})
     return jsonify(cursor['tops'])
 
 
-@app.route('/item/<id>.json',methods=['GET'])
-def item(id):
-    cursor = collection.find_one({ 'id' : int(id) })
+@app.route('/item/<id_>.json', methods=['GET'])
+def item(id_):
+    cursor = collection.find_one({'id' : int(id_)})
     del cursor['_id']
     return jsonify(cursor)
 
 
 # Start running the flask app
-app.debug = True
-
-if __name__ == '__main__':
-    sched.start()
-	app.run()
+if __name__ == '__main__':   
+    scheduler.start()
+    app.run(debug=True,port=5000)

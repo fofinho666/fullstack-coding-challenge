@@ -10,17 +10,23 @@ class HackerNewsAPI(object):
         self.top_num = top_num
 
     def get_top_stories(self):
-        url = '{}/topstories.json'.format(self.base_url)
-        ids = get(url)
-
-        if ids and ids.status_code == 200:
-            return [id_ for id_ in ids.json()[:self.top_num]]
-        return []
+        try:
+            url = '{}/topstories.json'.format(self.base_url)
+            ids = get(url)
+            
+            if ids and ids.status_code == 200:
+                return [id_ for id_ in ids.json()[:self.top_num]]
+            return []
+        except:
+            return []
 
     def get_item(self, id_):
-        url = '{}item/{}.json'.format(self.base_url, id_)
-        item = get(url)
-
-        if item and item.status_code == 200:
-            return  item.json()
-        return None
+        try:
+            url = '{}item/{}.json'.format(self.base_url, id_)
+            item = get(url)
+            
+            if item and item.status_code == 200:
+                return  item.json()
+            return None
+        except:
+            return None

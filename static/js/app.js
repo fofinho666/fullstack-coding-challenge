@@ -9,6 +9,7 @@ function getContent($scope,$http){
       
     //get stories
     for(var i=0; i<10 ; i++){
+      console.log(topstories[i])
       $http.get('/item/'+topstories[i]+'.json').then(function(response) {
           stories.push(response.data)
       });
