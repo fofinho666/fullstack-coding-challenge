@@ -33,11 +33,6 @@ function getTranslation($scope,$http,language){
 }
 
 function init($scope,$http){  
-  //disable En button by default   
-  //show En content by default 
-  $scope.disableEnButton=true;  
-  $scope.viewContent='views/contentEn.html';
-  $scope.dashboard='views/dashboard.html'
 
   var topstories=[];
   var stories=[];
@@ -68,13 +63,17 @@ function init($scope,$http){
 }
 
 app.controller('AppCtrl', function($scope,$http,$interval) {
-
+  
+  //disable En button by default   
+  //show En content by default 
+  $scope.disableEnButton=true;  
+  $scope.viewContent='views/contentEn.html';
+  $scope.dashboard='views/dashboard.html'
   init($scope,$http);
-  //update content every 10 minutes (600000 milliseconds)  
-  //$interval(function(){getContent($scope,$http)}, 600000 );
-  $interval(function(){getContent($scope,$http)}, 300000 );
-  $interval(function(){getTranslation($scope,$http,'pt')}, 150000 );
-  $interval(function(){getTranslation($scope,$http,'es')}, 150000 );
+
+  $scope.refreshContent = function(){    
+    return init($scope,$http);
+  }
   
   //change content view and disable language button
   $scope.changeTopLang = function(lang){
