@@ -1,3 +1,6 @@
 <ul class="list-group" ng-repeat="story in stories">
-  <li class="list-group-item"><a ng-href="{{story.url}}">{{($index+1) + ' - ' + story.title}}</a></li>
+  <li class="list-group-item">
+    <a ng-href="{{story.url}}">{{($index+1)}} - {{story.title}}</a>
+    <span> ({{story.kids.length}} comments)</span>
+  </li>
 </ul>

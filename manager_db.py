@@ -1,46 +1,3 @@
-def add_translation_data_to_title(item, unbabel_api, languages_list):
-    """
-    This function add translation data to the item object
-    """
-    if 'title' in item:
-        text = item['title']
-        item_result = item
-        # Get translations uids for each language and added to item
-        for language in languages_list:
-            try:
-                translation_data = get_translation_data( unbabel_api, text, language)
-            except:
-                return item
-
-            item_result.update(translation_data)
-            
-        return item_result
-    else:
-        return item
-
-def get_translation_data(unbabel_api, text, language):
-    """
-    This function starts a new translation and return translation data
-    """
-    key_uid = 'translation_{}_uid'.format(language)
-    key_status = 'translation_{}_status'.format(language)
-    key_ = 'translation_{}'.format(language)
-    translation_data = {
-        key_uid : None,
-        key_status : 'error',
-        key_ : None
-    }
-
-    try:
-        res = unbabel_api.request_translation(text, language)
-        if res:
-            translation_data[key_uid] = res['uid']
-            translation_data[key_status] = 'translating'
-            translation_data[key_] = None
-
-        return translation_data
-    except:
-        return translation_data
 
 class DatabaseManager(object):
     """
@@ -53,6 +10,7 @@ class DatabaseManager(object):
         self.languages_list = languages_list
         self.top_stories = []
 
+    def start(self):
         try:
             #Clean database
             self.database.delete_many({})
@@ -63,10 +21,23 @@ class DatabaseManager(object):
 
             #Get sotries into database
             for id_ in self.top_stories:
-                storie = self.harckernews.get_item(id_)
-                #add translation data to storie
-                storie = add_translation_data_to_title(storie, self.unbabel, self.languages_list)
-                self.database.insert(storie)
+                self.add_storie_to_databbase(id_)
+        except:
+            pass
+        
+    def add_storie_to_databbase(self, id_):
+        """
+        Get stories and initialize translation
+        """
+        try:
+            storie = self.harckernews.get_item(id_)
+
+            for language in self.languages_list:
+                translation = self.unbabel.request_translation(storie['title'], language)
+                translation['id'] = id_
+                self.database.insert(translation)
+
+            self.database.insert(storie)
         except:
             pass
 
@@ -82,11 +53,8 @@ class DatabaseManager(object):
                 self.database.delete_many({'id' : id_})
 
             #add new top stories
-            for id_ in add_top_stories:
-                storie = self.harckernews.get_item(id_)
-                #add translation uis to storie
-                storie = add_translation_data_to_title(storie, self.unbabel, self.languages_list)
-                self.database.insert(storie)
+            for id_ in add_top_stories:                
+                self.add_storie_to_databbase(id_)
 
             #update top in db (order may has changed)
             self.database.update_one(
@@ -97,37 +65,24 @@ class DatabaseManager(object):
         except:
             pass
 
-    def update_a_random_translation(self, language):
-        key_uid = 'translation_{}_uid'.format(language)
-        key_status = 'translation_{}_status'.format(language)
-        key_ = 'translation_{}'.format(language)
+    def update_a_translation(self, language):
 
-        try:
-            storie = self.database.find_one({key_status : 'translating'})
-            if storie:
-                uid = storie[key_uid]
-                translation = self.unbabel.get_translation(uid)
-            
-                if translation['status'] == 'completed':
-                    storie[key_] = translation['translatedText']
-                    storie[key_status] = 'completed'
-                    self.database.update_one(
-                        {'id' : storie['id']},
-                        {'$set' : storie}
-                    )
-        except:
-            pass
-            """
-            #APAGAR!!!
-            storie = self.database.find_one({key_status : 'error'})
-            uid = storie[key_uid]
-            #translation = self.unbabel.get_translation(uid)
+        trans_status = self.database.find_one(
+            {'$or' : [
+                {'status' : 'new', 'target_language' : language},
+                {'status' : 'translating', 'target_language' : language}]}
+        )
+        uid = trans_status['uid']
+        new_trans_status = self.unbabel.get_translation(uid)
 
-            #if translation['status'] == 'completed':
-            storie[key_] = 'test {} translation'.format(language)
-            storie[key_status] = 'completed'
+        print "update_a_translation!!!!!!!"
+        print '- trans_status ',trans_status['status']
+        print '- new_trans_status ',new_trans_status['status']
+
+        if new_trans_status['status'] != trans_status['status']:
+            new_trans_status['id'] = trans_status['id']
+
             self.database.update_one(
-                {'id' : storie['id']},
-                {'$set' : storie}
+                {'uid' : uid, 'status' : 'translating'},
+                {'$set' : new_trans_status}
             )
-            """

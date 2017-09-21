@@ -28,17 +28,17 @@ def update_top_stories():
 
 
 def update_a_random_pt_translation():
-    manager.update_a_random_translation('pt')
+    manager.update_a_translation('pt')
 
 
 def update_a_random_es_translation():
-    manager.update_a_random_translation('es')
+    manager.update_a_translation('es')
 
 scheduler = BackgroundScheduler()
 #job = scheduler.add_job(update_top_stories, 'interval', UPDATE_RATE)
-job = scheduler.add_job(update_top_stories, 'interval', seconds=30)
-job = scheduler.add_job(update_a_random_pt_translation, 'interval', seconds=1)
-job = scheduler.add_job(update_a_random_es_translation, 'interval', seconds=1)
+job = scheduler.add_job(update_top_stories, 'interval', seconds=30000)
+job = scheduler.add_job(update_a_random_pt_translation, 'interval', seconds=3000)
+job = scheduler.add_job(update_a_random_es_translation, 'interval', seconds=3000)
 
 #Flask stuff!!
 app = Flask(__name__, static_url_path='')
@@ -56,12 +56,19 @@ def topStories():
 
 @app.route('/item/<id_>.json', methods=['GET'])
 def item(id_):
-    cursor = collection.find_one({'id' : int(id_)})
+    cursor = collection.find_one({'id' : int(id_),'type' : 'story'})
     del cursor['_id']
     return jsonify(cursor)
 
 
+@app.route('/translation/<id_>_<target_language>/', methods=['GET'])
+def translation(id_, target_language):
+    cursor = collection.find_one({'id' : int(id_), 'target_language' : target_language})
+    del cursor['_id']
+    return jsonify(cursor)
+
 # Start running the flask app
 if __name__ == '__main__': 
+    manager.start()
     scheduler.start()  
     app.run(debug=True,port=5000)

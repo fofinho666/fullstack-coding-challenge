@@ -12,10 +12,6 @@ class UnbabelAPI(object):
             'Authorization' : 'ApiKey {}:{}'.format(user, apikey),
             'Content-Type' : 'application/json'
         }
-        #{
-        #    'Authorization': 'ApiKey {0}:{1}'.format('backendchallenge', '711b8090e84dcb4981e6381b59757ac5c75ebb26'),
-        #    'Content-Type': 'application/json'
-        #}
     def request_translation(self, text, language): 
         
         

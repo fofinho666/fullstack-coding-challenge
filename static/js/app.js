@@ -6,28 +6,77 @@ function getContent($scope,$http){
   //get top stories
   $http.get('/topstories.json').then(function(response) {
     topstories=response.data;
-      
+
     //get stories
-    for(var i=0; i<10 ; i++){
+    for(var i=0; i<topstories.length; i++){
       $http.get('/item/'+topstories[i]+'.json').then(function(response) {
-          stories.push(response.data)
+          stories.push(response.data);
       });
     }
     $scope.stories=stories;
   });
 }
 
-app.controller('AppCtrl', function($scope,$http,$interval) {
+function getTranslation($scope,$http,language){
+  var trasn_key = 'trans_'+language;
+  var trasn_data = [];
+  $scope[trasn_key]=[];
+
+  for(var i=0; i<$scope.stories.length; i++){
+    id=$scope.stories[i].id
+    //get translation data from stories id
+    $http.get('/translation/'+id+'_'+language+'/').then(function(response) {
+      trasn_data.push(response.data);
+    });
+  }
+  $scope[trasn_key]=trasn_data;
+}
+
+function init($scope,$http){  
   //disable En button by default   
   //show En content by default 
   $scope.disableEnButton=true;  
   $scope.viewContent='views/contentEn.html';
+  $scope.dashboard='views/dashboard.html'
 
-  //get content for the first time
-  //update content every 10 minutes (600000 milliseconds)
-  getContent($scope,$http);  
+  var topstories=[];
+  var stories=[];
+  var trans_pt=[];
+  var trans_es=[];
+  //get top stories
+  $http.get('/topstories.json').then(function(response) {
+    topstories=response.data;
+
+    //get stories
+    for(var i=0; i<topstories.length; i++){
+      var id = topstories[i];
+      $http.get('/item/'+id+'.json').then(function(response) {
+        stories.push(response.data);
+      });
+      $http.get('/translation/'+id+'_pt/').then(function(response) {
+        trans_pt.push(response.data);
+      });
+      $http.get('/translation/'+id+'_es/').then(function(response) {
+        trans_es.push(response.data);
+      });
+
+    }
+    $scope.stories=stories;
+    $scope.trans_pt=trans_pt;
+    $scope.trans_es=trans_es;
+    console.log($scope.stories)
+  });
+}
+
+
+app.controller('AppCtrl', function($scope,$http,$interval) {
+
+  init($scope,$http);
+  //update content every 10 minutes (600000 milliseconds)  
   //$interval(function(){getContent($scope,$http)}, 600000 );
-  $interval(function(){getContent($scope,$http)}, 20000 );
+  $interval(function(){getContent($scope,$http)}, 300000 );
+  $interval(function(){getTranslation($scope,$http,'pt')}, 150000 );
+  $interval(function(){getTranslation($scope,$http,'es')}, 150000 );
   
   //change content view and disable language button
   $scope.changeTopLang = function(lang){
@@ -50,6 +99,6 @@ app.controller('AppCtrl', function($scope,$http,$interval) {
         break;
     }
   }
-  
-
+  //get content for the first time
 });
+

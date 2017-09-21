@@ -1,0 +1,35 @@
+body{
+  background-color: rgba(51,71,146,1);  
+  font-size: small;
+}
+.container{
+  background-color: #fff;  
+  height:100vh;
+}
+.dashbard-title{
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.dashbard-content{
+  color:white;
+  min-height:512px;
+  background-color:#b1b6bb; 
+  margin-top:12px;
+  border-radius:.2rem;
+  padding: 5px;
+}
+
+#default-spacing{
+  color:white!important;
+}
+pre{
+  margin-bottom: 0!important;
+}
+pre hr{
+  margin:0!important;
+}
+pre p{
+  color:#0000ff!important;
+  margin:0!important;
+}
