@@ -12,23 +12,29 @@ class UnbabelAPI(object):
             'Authorization' : 'ApiKey {}:{}'.format(user, apikey),
             'Content-Type' : 'application/json'
         }
-    def request_translation(self, text, language):
-        data = {
-            'text': text,
-            'target_language': language,
-            'text_format': 'text'
-        }
-        uid = post(self.base_url, headers=self.headers, data=json.dumps(data))
-        
-        if uid and uid.status_code == 201:
-            return uid.json()
-        return None
+    def request_translation(self, text, language):        
+        try:
+            data = {
+                'text': text,
+                'target_language': language,
+                'text_format': 'text'
+            }
+            uid = post(self.base_url, headers=self.headers, data=json.dumps(data))
+            
+            if uid and uid.status_code == 201:
+                return uid.json()
+            return None
+        except:
+            return None
 
-    def get_translation(self, uid):
-        url = '{}{}/'.format(self.base_url, uid)
-        translation = get(url, headers=self.headers)
+    def get_translation(self, uid):        
+        try:
+            url = '{}{}/'.format(self.base_url, uid)
+            translation = get(url, headers=self.headers)
 
-        if translation and translation.status_code == 200:
-            return translation.json()
-        return None
+            if translation and translation.status_code == 200:
+                return translation.json()
+            return None
+        except:
+            return None
     
