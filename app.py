@@ -70,5 +70,5 @@ def translation(id_, target_language):
 # Start running the flask app
 if __name__ == '__main__': 
     manager.start()
-    scheduler.start()  
+    scheduler.start()
     app.run(debug=False,threaded=True,port=5000)
