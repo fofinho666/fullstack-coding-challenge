@@ -9,7 +9,7 @@ TOP_STORIES = 10
 UNBABEL_USER = "backendchallenge"
 UNBABEL_APIKEY = "d1d01e730f33285c89424412088fed716efdb7e7"
 LANGUAGES_LIST = ['es', 'pt']
-#UPDATE_RATE = 10 #keeping this site updated with hackernews every X minutes
+UPDATE_RATE = 10 #keeping this site updated with hackernews every 10 minutes
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
 
@@ -35,10 +35,10 @@ def update_a_random_es_translation():
     manager.update_a_translation('es')
 
 scheduler = BackgroundScheduler()
-#job = scheduler.add_job(update_top_stories, 'interval', UPDATE_RATE)
-job = scheduler.add_job(update_top_stories, 'interval', seconds=30000)
-job = scheduler.add_job(update_a_random_pt_translation, 'interval', seconds=3000)
-job = scheduler.add_job(update_a_random_es_translation, 'interval', seconds=3000)
+job = scheduler.add_job(update_top_stories, 'interval', minutes=UPDATE_RATE)
+#job = scheduler.add_job(update_top_stories, 'interval', seconds=30000)
+job = scheduler.add_job(update_a_random_pt_translation, 'interval', seconds=5)
+job = scheduler.add_job(update_a_random_es_translation, 'interval', seconds=5)
 
 #Flask stuff!!
 app = Flask(__name__, static_url_path='')
@@ -71,4 +71,4 @@ def translation(id_, target_language):
 if __name__ == '__main__': 
     manager.start()
     scheduler.start()  
-    app.run(debug=True,port=5000)
+    app.run(debug=False,threaded=True,port=5000)

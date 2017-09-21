@@ -13,11 +13,12 @@ body{
 }
 .dashbard-content{
   color:white;
-  min-height:512px;
+  height:82vh;
   background-color:#b1b6bb; 
   margin-top:12px;
   border-radius:.2rem;
   padding: 5px;
+  overflow: auto;
 }
 
 #default-spacing{

@@ -1,4 +1,3 @@
-
 class DatabaseManager(object):
     """
     Class to manage database
@@ -11,6 +10,9 @@ class DatabaseManager(object):
         self.top_stories = []
 
     def start(self):
+        """
+        Starts filling the database
+        """
         try:
             #Clean database
             self.database.delete_many({})
@@ -33,8 +35,18 @@ class DatabaseManager(object):
             storie = self.harckernews.get_item(id_)
 
             for language in self.languages_list:
+
                 translation = self.unbabel.request_translation(storie['title'], language)
-                translation['id'] = id_
+
+                if translation is not None :
+                    translation['id'] = id_
+                else:
+                    translation = {
+                        "status": "request_translation_failed",
+                        "target_language": language,
+                        "text": storie['title'],
+                        "id": id_
+                    }
                 self.database.insert(translation)
 
             self.database.insert(storie)
@@ -42,6 +54,9 @@ class DatabaseManager(object):
             pass
 
     def update_top_stories(self):
+        """
+        See if the top has changed and update the database
+        """
         try:
             new_top_stories = self.harckernews.get_top_stories()
             remove_top_stories = set(self.top_stories) - set(new_top_stories)
@@ -49,7 +64,6 @@ class DatabaseManager(object):
 
             #remove old top stories
             for id_ in remove_top_stories:
-                print ("remove ", str(id_))
                 self.database.delete_many({'id' : id_})
 
             #add new top stories
@@ -66,23 +80,26 @@ class DatabaseManager(object):
             pass
 
     def update_a_translation(self, language):
-
-        trans_status = self.database.find_one(
-            {'$or' : [
-                {'status' : 'new', 'target_language' : language},
-                {'status' : 'translating', 'target_language' : language}]}
-        )
-        uid = trans_status['uid']
-        new_trans_status = self.unbabel.get_translation(uid)
-
-        print "update_a_translation!!!!!!!"
-        print '- trans_status ',trans_status['status']
-        print '- new_trans_status ',new_trans_status['status']
-
-        if new_trans_status['status'] != trans_status['status']:
-            new_trans_status['id'] = trans_status['id']
-
-            self.database.update_one(
-                {'uid' : uid, 'status' : 'translating'},
-                {'$set' : new_trans_status}
+        """
+        Check if the state of a translation has changed and save it in the database
+        """
+        try:
+            trans_status = self.database.find_one(
+                {'$or' : [
+                    {'status' : 'new', 'target_language' : language},
+                    {'status' : 'translating', 'target_language' : language}]}
             )
+
+            uid = trans_status['uid']            
+            new_trans_status = self.unbabel.get_translation(uid)
+
+            if new_trans_status['status'] != trans_status['status']:
+
+                new_trans_status['id'] = trans_status['id']
+
+                self.database.update_one(
+                    {'uid' : uid, 'status' : trans_status['status']},
+                    {'$set' : new_trans_status}
+                )
+        except:
+            pass

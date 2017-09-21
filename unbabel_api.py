@@ -12,9 +12,7 @@ class UnbabelAPI(object):
             'Authorization' : 'ApiKey {}:{}'.format(user, apikey),
             'Content-Type' : 'application/json'
         }
-    def request_translation(self, text, language): 
-        
-        
+    def request_translation(self, text, language):
         data = {
             'text': text,
             'target_language': language,
@@ -24,10 +22,6 @@ class UnbabelAPI(object):
         
         if uid and uid.status_code == 201:
             return uid.json()
-        print ('request_translation!!!!')
-        print '- text',text
-        print '- language',language
-        print '- code',uid.status_code
         return None
 
     def get_translation(self, uid):

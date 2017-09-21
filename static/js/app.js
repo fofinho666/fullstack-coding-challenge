@@ -64,10 +64,8 @@ function init($scope,$http){
     $scope.stories=stories;
     $scope.trans_pt=trans_pt;
     $scope.trans_es=trans_es;
-    console.log($scope.stories)
   });
 }
-
 
 app.controller('AppCtrl', function($scope,$http,$interval) {
 
@@ -99,6 +97,4 @@ app.controller('AppCtrl', function($scope,$http,$interval) {
         break;
     }
   }
-  //get content for the first time
 });
-
