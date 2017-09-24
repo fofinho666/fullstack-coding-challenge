@@ -1,11 +1,13 @@
 <ul class="list-group" ng-repeat="story in stories">
-  <li class="list-group-item">
-    <a ng-href="{{story.url}}" ng-if="trans_es[$index].status  === 'completed'">
+  <li class="list-group-item" ng-if="trans_es[$index].status === 'completed'">
+    <a ng-href="{{story.url}}">
       {{($index+1)}} - {{trans_es[$index].translatedText}}
     </a>
-    <a ng-href="{{story.url}}" ng-if="trans_es[$index].status  !== 'completed'">
+    <span ng-if="story.descendants !== undefined">({{story.descendants}} comentarios)</span>
+  </li>
+  <li class="list-group-item" ng-if="trans_es[$index].status !== 'completed'">
+    <a ng-href="{{story.url}}">
       {{($index+1)}} - Traduciendo...
     </a>
-    <span>({{story.kids.length}} comentarios)</span>
   </li>
 </ul>

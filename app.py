@@ -56,7 +56,7 @@ def topStories():
 
 @app.route('/item/<id_>.json', methods=['GET'])
 def item(id_):
-    cursor = collection.find_one({'id' : int(id_),'type' : 'story'})
+    cursor = collection.find_one({'id' : int(id_),'title' : {'$exists': 'true'}})
     del cursor['_id']
     return jsonify(cursor)
 
